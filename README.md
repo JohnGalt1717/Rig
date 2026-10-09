@@ -16,6 +16,8 @@ From any paired machine you see every session the host is running, and you contr
 
 Self-host the backplane wherever you want. A window on a laptop and a window on a desktop are the same app, talking to the same sessions.
 
+On Windows the host is Linux. The app is the Linux build, shown on the Windows desktop through WSLg. The agent, the shell, the hooks, and the language server all run in the distro. Nothing speaks PowerShell. See [docs/windows.md](docs/windows.md).
+
 ## Plan, then execute
 
 Work starts as a plan, not as a prompt that wanders. Rig runs a grill: it reads the docs and the code the task touches, asks only the questions that would change the design, and writes the settled plan to `.agents/plans/`. Execution starts when that plan's open questions are empty.
@@ -47,7 +49,9 @@ End-to-end tests are JSON chains. The agent writes and repairs the chain. The ha
 
 ## The setup file
 
-`.prerequisites.json` at the repo root is the machine contract. It is committed. It lists every tool the repo needs, with a glob for where it applies and an install per platform: Windows, macOS, Linux. A language pack contributes its own entries. A repo can add more. The harness owns the mapping, including WSL on Windows, so a bash install step is the same step everywhere.
+`.prerequisites.json` at the repo root is the machine contract. It is committed. It lists every tool the repo needs, with a glob for where it applies and an install for the Linux environment the host actually runs in. A language pack contributes its own entries. A repo can add more.
+
+On Windows that environment is the WSL distro. `/init` does not install Windows packages and does not generate PowerShell. The window is Windows. The machine is Linux.
 
 Nothing in that file is a secret, and nothing in it is specific to one person's laptop. Clone the repo onto a blank machine and the file is already there. `/init` reads it, installs what is missing, and records what it installed. The next run diffs the file against the machine and only touches what drifted. You confirm the drift. It does not rewrite a working box in silence.
 
@@ -55,7 +59,7 @@ That is how an agent brings a dev box up. The contract is in the repo. The user 
 
 ## Credentials
 
-Credentials stay out of git. `credentials.schema.json` is committed: name, glob, description, when to use. The values are not. The first machine fills them once. After that the harness injects the matching names into the agent environment from the OS keychain. A later machine gets the values from the store you already use, not from a Slack pin. The agent sees the description. The transcript is redacted before it is stored.
+Credentials stay out of git. `credentials.schema.json` is committed: name, glob, description, when to use. The values are not. The first machine fills them once, into the Linux secret store of the distro the host runs in. After that the harness injects the matching names into the agent environment. A later machine gets the values from the store you already use, not from a Slack pin. The agent sees the description. The transcript is redacted before it is stored.
 
 GitHub is the remote, not the vault. A `vault` profile in `deploy/docker-compose.yml` can start a local Hashicorp Vault in dev mode. It is off unless you select it, and it is a stand-in, not the product.
 
@@ -71,18 +75,18 @@ The agent does not get a raw GitHub tool. It asks the harness. The harness is wh
 
 Rig uses the standards that already exist. Agents speak ACP. Tools speak MCP. Skills are skills. The gap is everything those standards leave to the client.
 
-The harness is that client, and it is opinionated. Scope is a glob, not whatever directory the process started in. Hooks are declared and run by the harness, with Windows path mapping and CR stripping, so a bash script from the repo runs on a Windows host. Credentials are injected, not dropped in a file the agent can cat. A tool not in the matched set is not callable. The panel shows the match. Where a standard is silent or wrong, Rig extends it in the repo contract instead of waiting for the next spec revision.
+The harness is that client, and it is opinionated. Scope is a glob, not whatever directory the process started in. Hooks are declared and run by the harness. Because the Windows host is Linux, a bash hook is bash, and the agent is not asked to know which shell the desktop uses. Credentials are injected, not dropped in a file the agent can cat. A tool not in the matched set is not callable. The panel shows the match. Where a standard is silent or wrong, Rig extends it in the repo contract instead of waiting for the next spec revision.
 
 ## Layout
 
 | Path | What it is |
 | --- | --- |
-| `.prerequisites.json` | Machine contract. What `/init` installs, per platform, per glob. |
+| `.prerequisites.json` | Machine contract. What `/init` installs, per glob, into the Linux host. |
 | `credentials.schema.json` | Credential names and where they apply. Values are not committed. |
 | `docs/` | Product contract, decisions, and the grill plans that gate implementation. |
 | `.agents/` | The root contract above, including `plans/`. |
 | `Api/` | Backplane, data model, tests. |
-| `Apps/rig/` | The Flutter shell. One app. |
+| `Apps/rig/` | The Flutter shell. One app. Linux build, shown on Windows through WSLg. |
 | `Apps/shared/` | Flutter libraries. |
 | `deploy/` | Compose file. Backplane profile, and an opt-in local vault profile. |
 
