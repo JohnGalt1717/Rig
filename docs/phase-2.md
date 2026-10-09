@@ -10,7 +10,9 @@ Rig is the telemetry consumer. The session already has one trace. Phase 2 instal
 
 Tests get the same resources without a container per test. A test group asks Rig for a database, a Valkey, a bus. Rig cuts a sub-database on the server already running, returns the connection string, and drops it when the group ends. The language pack exposes that call. Isolation without the Testcontainers tax.
 
-The dashboard lists every resource per environment. An agent can read it when the repo allows. A repo that is not a monorepo gets a root repo whose config points at the others, and Rig treats that root as the repo.
+The dashboard lists every resource per environment. An agent can read it when the repo allows.
+
+One repo is the contract. `.agents/`, the plans, the knowledge, and the docs live there, and the links in that repo bring the other checkouts down. A codebase that is already split does not have to merge. Rig creates the root, points it at the existing repos, and that root is what `/init` and the agents read. The code stays where it is. The contract does not.
 
 `/init` reads the code, proposes the resources, and offers the edits that wire key vault, database, and cache injection. It then runs until the local session starts, and it does not leave the rest of the tree broken.
 
