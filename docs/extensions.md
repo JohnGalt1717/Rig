@@ -8,6 +8,7 @@ The harness is the app host for the session, the way Aspire is the app host for 
 | --- | --- | --- |
 | Source control | a git remote | Commit, pull, push, merge, through the credential helper. |
 | Pull requests | GitHub on that remote | Open, review, comment. GitLab is the same contract later. |
+| Issues | GitHub Issues on that remote | Plan, root cause, then fix. See [issues.md](issues.md). Linear and Jira later. |
 | Checks | `.github/workflows` | Run status and log. A finished run is an event. Watching, not deploying. |
 | Containers | `compose.yaml`, a Dockerfile | Start the session runtime. Engine is Docker, Podman, Apple containers, or WSL. |
 | Language pack | `*.sln`, `pubspec.yaml`, `package.json` | Analyze, build, test, debug, format. |
