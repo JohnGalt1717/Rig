@@ -13,7 +13,7 @@ The harness is the app host for the session, the way Aspire is the app host for 
 | Containers | `compose.yaml`, a Dockerfile | Start the session runtime. Engine is Docker, Podman, Apple containers, or WSL. |
 | Language pack | `*.sln`, `pubspec.yaml`, `package.json` | Analyze, build, test, debug, format. |
 | Packages | the lockfile next to those | Restore, advisory, bump. |
-| Secrets | `credentials.schema.json` | Inject names and files into the session. |
+| Secrets | the helper and the secret proxy | Inject names and files into the session. No schema file in the repo. |
 | Certificates | entries in the machine contract | Issue and trust, then hand the cert to the session. |
 | Database | a connection the runtime needs | Start it, migrate, query. |
 | Traces | an OpenTelemetry exporter | One trace across the session's resources. |

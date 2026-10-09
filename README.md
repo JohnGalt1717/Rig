@@ -1,5 +1,7 @@
 # Rig
 
+Read [LICENSE.md](LICENSE.md) before you use, copy, or contribute to this repository. The grant is narrow. Read it carefully.
+
 Rig is a harness for coding agents. Chat is the primary surface. The agent does the work. You see the files, the diff, the diagnostics, and exactly what the harness loaded and why.
 
 The agents that can edit, run, and test ship as terminals, or as guests inside an editor that was not built to scope them. Those editors hand the agent a global tool list, a global git account, and no rule for which tool is legal in which folder. Review, pull requests, and Actions happen in a browser or over a proxy API, so the screen you are on is never the place the work is happening. A new machine is a scavenger hunt: install the SDK, install the debugger, copy an env file, hope the bash hook runs on Windows.
@@ -59,7 +61,7 @@ That is how an agent brings a dev box up. The contract is in the repo. The user 
 
 ## Credentials
 
-Credentials stay out of git. `credentials.schema.json` is committed: name, glob, description, when to use. The values are not. The first machine fills them once, into the Linux secret store of the distro the host runs in. After that the harness injects the matching names into the agent environment. A later machine gets the values from the store you already use, not from a Slack pin. The agent sees the description. The transcript is redacted before it is stored.
+There is no credentials file in the repo. Git and `gh` use the credential helper `/init` installs, and the account is the one named for that remote. A tracker other than GitHub gets a login prompt on first use, stored against this repo only. Secret values for the running code come from the secret proxy. The agent sees names. The transcript is redacted before it is stored.
 
 GitHub is the remote, not the vault. An `openbao` profile in `deploy/docker-compose.yml` can start OpenBao in dev mode. It is off unless you select it, and it is a stand-in, not the hosted store.
 
@@ -67,7 +69,7 @@ GitHub is the remote, not the vault. An `openbao` profile in `deploy/docker-comp
 
 GitHub is built in. GitLab comes later, behind the same UI.
 
-The harness uses the credentials declared for the repo, on the git identity it wrote at `/init`, and talks to GitHub itself. Pull requests, review comments, checks, and Actions runs are rendered in the app, on the session that produced them. A review agent writes the review against the diff already on screen. The comment appears in the app and on the pull request, because that is where other people read it. You do not alt-tab to github.com, and the agent does not drive GitHub through a generic proxy the way an editor extension does. Source control, the checks, and the review thread are the same surface as the chat.
+The harness uses the account the helper holds for the repo, on the git identity it wrote at `/init`, and talks to GitHub itself. Pull requests, review comments, checks, and Actions runs are rendered in the app, on the session that produced them. A review agent writes the review against the diff already on screen. The comment appears in the app and on the pull request, because that is where other people read it. You do not alt-tab to github.com, and the agent does not drive GitHub through a generic proxy the way an editor extension does. Source control, the checks, and the review thread are the same surface as the chat.
 
 The agent does not get a raw GitHub tool. It asks the harness. The harness is what holds the account.
 
@@ -81,8 +83,8 @@ The harness is that client, and it is opinionated. Scope is a glob, not whatever
 
 | Path | What it is |
 | --- | --- |
+| `LICENSE.md` | The grant. Read it before you copy or contribute. |
 | `.prerequisites.json` | Machine contract. What `/init` installs, per glob, into the Linux host. |
-| `credentials.schema.json` | Credential names and where they apply. Values are not committed. |
 | `docs/` | Product contract, decisions, and the grill plans that gate implementation. |
 | `.agents/` | The root contract above, including `plans/`. |
 | `Api/` | Backplane, data model, tests. |
