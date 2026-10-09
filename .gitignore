@@ -10,8 +10,9 @@ build/
 .env
 .env.*
 !.env.example
+appsettings.*.local.json
 deploy/vault/data/
-*.db
+.structure.db
 *.db-shm
 *.db-wal
 .DS_Store
