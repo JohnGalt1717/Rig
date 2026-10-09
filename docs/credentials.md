@@ -1,13 +1,9 @@
 # Credentials
 
-Bring your own, for now.
+There is no `credentials.schema.json`. The helper holds the account.
 
-Committed: a schema file, `credentials.schema.json`, name, glob, description, and when to use it. Not committed: values. `.credentials` and `.env` are gitignored.
+Git and `gh` use the credential helper `/init` installed. The repo setup names the account for that remote. A tracker other than GitHub gets a login prompt on first use, stored against this repo only, and injected into the call. The agent does not see the token, and a login for one repo is not offered to another.
 
-`/init` asks the user to point at a local file or to fill the schema. The harness writes values into the secret store and injects them into the agent environment for the matching glob. The agent sees the name and the description. The panel shows which schema entries matched. The agent never reads the file.
+Secret values for the running code come from the secret proxy: the keychain in the distro, or OpenBao if that profile is selected. The agent asks the proxy by name. It never reads `.credentials` or `.env`.
 
 GitHub Actions secrets are not a source. The API does not return the value.
-
-## Self-host
-
-`deploy/docker-compose.yml` has an `openbao` profile that starts OpenBao in dev mode. It is off unless the operator selects it. Production key handling is a later hosted store, separate from this repo.

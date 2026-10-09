@@ -1,6 +1,6 @@
 # Secrets
 
-The agent never reads `.credentials`, `.env`, or `appsettings.json` for values. It asks the secret proxy. The proxy is the store `/init` filled: the keychain in the distro, or OpenBao if that profile is selected. The schema in `credentials.schema.json` is the name, the glob, and when to use it.
+The agent never reads `.credentials`, `.env`, or `appsettings.json` for values. It asks the secret proxy. The proxy is the store `/init` filled: the keychain in the distro, or OpenBao if that profile is selected. There is no schema file in the repo. A name is registered when the user adds it, scoped to this repo.
 
 Self-host is OpenBao. `deploy/docker-compose.yml` has an `openbao` profile that starts it in dev mode. It is off unless you select it. A hosted store, run for you, is a later product. This repo does not describe it.
 
