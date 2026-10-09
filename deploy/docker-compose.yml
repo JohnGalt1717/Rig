@@ -12,16 +12,16 @@ services:
       Rig__Data__Path: /data/rig.db
     profiles: ["relay"]
 
-  vault:
-    image: hashicorp/vault:1.19
+  openbao:
+    image: openbao/openbao:2.4
     command: server -dev -dev-listen-address=0.0.0.0:8200
     ports:
       - "8200:8200"
     cap_add:
       - IPC_LOCK
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: rig-dev-only
-    profiles: ["vault"]
+      BAO_DEV_ROOT_TOKEN_ID: rig-dev-only
+    profiles: ["openbao"]
 
 volumes:
   relay-data:
