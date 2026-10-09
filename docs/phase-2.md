@@ -30,6 +30,14 @@ The deploy script is generated from the config. It is not a file someone maintai
 
 Checks run the same rendering. A workflow does not carry a hand-written deploy step. It calls the host, and the host emits the target from the config on that commit.
 
+## CI, after the host is solid
+
+This waits until the rest of phase 2 is proven. It is not part of the first cut of the host.
+
+The host generates the pipeline from the config. A check-in that changes a resource, a setting, or a migration is a diff the host reads. It emits the pipeline change: spin the resource up, apply the migration, change the setting, tear down what the diff removed. The migration runs as a step of the deploy, against the database the config named, and it rolls back if the step fails. The agent does not write the workflow file.
+
+The agent then runs that pipeline and reads the result. A failed step is a finding. The agent corrects the config, the host regenerates the pipeline, and the run repeats until the deploy completes. The user does not spend the day in a workflow editor. A pipeline that has not passed this loop is not the one the repo uses.
+
 ## Telemetry
 
 Rig is the consumer. Aspire's dashboard goes away with Aspire.
