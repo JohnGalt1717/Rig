@@ -61,7 +61,7 @@ That is how an agent brings a dev box up. The contract is in the repo. The user 
 
 Credentials stay out of git. `credentials.schema.json` is committed: name, glob, description, when to use. The values are not. The first machine fills them once, into the Linux secret store of the distro the host runs in. After that the harness injects the matching names into the agent environment. A later machine gets the values from the store you already use, not from a Slack pin. The agent sees the description. The transcript is redacted before it is stored.
 
-GitHub is the remote, not the vault. A `vault` profile in `deploy/docker-compose.yml` can start a local Hashicorp Vault in dev mode. It is off unless you select it, and it is a stand-in, not the product.
+GitHub is the remote, not the vault. An `openbao` profile in `deploy/docker-compose.yml` can start OpenBao in dev mode. It is off unless you select it, and it is a stand-in, not the hosted store.
 
 ## GitHub, on this screen
 
@@ -88,7 +88,7 @@ The harness is that client, and it is opinionated. Scope is a glob, not whatever
 | `Api/` | Backplane, data model, tests. |
 | `Apps/rig/` | The Flutter shell. One app. Linux build, shown on Windows through WSLg. |
 | `Apps/shared/` | Flutter libraries. |
-| `deploy/` | Compose file. Backplane profile, and an opt-in local vault profile. |
+| `deploy/` | Compose file. Backplane profile, and an opt-in OpenBao profile. |
 
 Direct editing is for review. The shell is Flutter. The editor is Monaco with the language pack's language server. The diff sits next to the chat that produced it.
 
