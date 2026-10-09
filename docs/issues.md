@@ -10,8 +10,10 @@ A fix does not start on the code. It starts on a plan. The plan opens with the r
 
 The plan is committed on the branch. The pull request description is that file, plus a running note of what changed from the plan and what the work actually found. The note updates as the session learns. The agent does not write a separate summary.
 
-The ticket stores that record as fields, not as a paragraph in the body. On first connect the harness creates them if the tracker allows it: root cause, plan, unanticipated changes, and what was actually found. GitHub keeps those on the Project item for the issue, which is the only place GitHub has custom fields. Linear and Jira get them on the issue itself. A tracker that cannot hold a field gets a refused close, not a blob of markdown standing in for one.
+The ticket stores that record as fields when the tracker has them: root cause, plan, unanticipated changes, and what was actually found. On first connect the harness creates them. GitHub keeps those on the Project item, which is the only place GitHub has custom fields. Linear and Jira get them on the issue itself.
 
-Before squash or merge, the harness takes the plan off the branch and writes those fields. Close is refused until they are filled. The merge does not contain the plan file. The repo is clean. The ticket holds the history.
+A tracker with no fields gets one comment, headed and fenced so each part is a section: root cause, plan, unanticipated changes, what was actually found. The harness updates that comment. It does not append a new one. Close waits until the comment is there.
+
+Before squash or merge, the harness takes the plan off the branch and writes the fields, or the comment. The merge does not contain the plan file. The repo is clean. The ticket holds the history.
 
 No plan, no branch. A ticket that is not a code change does not get one.
