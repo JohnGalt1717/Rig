@@ -2,19 +2,27 @@
 
 Rig is a harness for coding agents. Chat is the primary surface. The agent does the work. You see the files, the diff, the diagnostics, and exactly what the harness loaded and why.
 
-It exists because the current tools split the job badly. The agents that can actually edit, run, and test (Grok Build, Codex, Copilot, and the rest) ship as terminals or as guests inside an editor that was not built to scope them. Cursor and VS Code give you a file tree and a debugger, then hand the agent a global tool list, a global GitHub account, and no rule for which MCP is legal in which folder. GitHub will not give a cloned repo its secrets back. Actions secrets are write-only. The practical result is a `.env` in Slack, a password manager someone forgot to share, or a workflow that hands the decryption key to whoever can run it.
+The agents that can edit, run, and test ship as terminals, or as guests inside an editor that was not built to scope them. Those editors hand the agent a global tool list, a global git account, and no rule for which tool is legal in which folder. Review, pull requests, and Actions happen in a browser or over a proxy API, so the screen you are on is never the place the work is happening. A new machine is a scavenger hunt: install the SDK, install the debugger, copy an env file, hope the bash hook runs on Windows.
 
-Rig is the thing that sits in front of those agents and refuses that. It is not another IDE, and it is not a plugin.
+Rig sits in front of the agents and refuses that. It is not another IDE, and it is not a plugin.
 
-## What you get
+## Any machine, one backplane
 
-You clone a repository and run `/init`. The harness reads one `.agents/` at the git root, matches the path you started in against globs, and starts the winning agent with only the tools, hooks, behavior, and knowledge that matched. A panel shows each match and each file that did not load. Several sessions run at once, as tabs or as their own windows. A home page lists what is running.
+The machine with the checkout is the host. The agent process, the language server, the simulator, and the injected credentials live there. Every other window is a client.
 
-The machine with the checkout is the host. The agent process, the language server, the simulator, and the credentials live there. A window on another machine attaches through a relay and sends intents: prompt, approve, deny, open a file, comment on a line. The host applies them. If the host is asleep, the session is down. The relay forwards ciphertext and remembers which device is paired. It does not store the repo, the transcript, or a secret.
+Clients and hosts dial a backplane. The backplane is a small .NET 11 service, SQLite and Entity Framework, speaking MinimalWebTransport. Both sides connect out. It is not hole punching. A personal install is an organization of one. Adding a person adds a membership. Same tables.
 
-Direct editing is there for review, not for living in. The shell is Flutter. The editor is Monaco with the language pack's language server, so highlighting, diagnostics, and go-to-definition work. The diff sits next to the chat that produced it. A comment on a line goes back to the agent. A review agent writes the review, and the git layer posts it to the pull request, because that is where other people read it.
+From any paired machine you see every session the host is running, and you control them: prompt, approve, deny, open a file, comment on a line. The host applies the intent and streams events back. If the host is asleep, that session is down. The backplane remembers which device is paired and which host owns which session. It forwards ciphertext. It does not store the repo, the transcript, or a secret.
 
-## How a session is scoped
+Self-host the backplane wherever you want. A window on a laptop and a window on a desktop are the same app, talking to the same sessions.
+
+## Plan, then execute
+
+Work starts as a plan, not as a prompt that wanders. Rig runs a grill: it reads the docs and the code the task touches, asks only the questions that would change the design, and writes the settled plan to `.agents/plans/`. Execution starts when that plan's open questions are empty.
+
+The plan stays linked to the session. The agent does not get to invent a second plan halfway through. A change of direction is an edit to the plan, then more work.
+
+## Who does the work
 
 There is one `.agents/` per repository, at the root. Nested copies are ignored.
 
@@ -22,38 +30,55 @@ There is one `.agents/` per repository, at the root. Nested copies are ignored.
 | --- | --- |
 | `agents/` | Agent definitions. Each has globs, a priority, and the harnesses it may run under. |
 | `behavior/` | Instructions mirrored to the repo path, with an optional globs array for cross-cutting rules. |
-| `knowledge/` | OKF notes at the same relative path as the code they describe. |
+| `knowledge/` | Notes at the same relative path as the code they describe. |
 | `hooks/` | Declarations. The harness runner executes them. The agent does not shell out. |
 | `skills/` | Loaded only when the matched agent names them. |
+| `plans/` | Settled plans. Grill writes them. Execution reads them. |
 
 Longest matching glob wins, then priority. A tie is an error on the panel. The dispatcher hands off. It does not do the work itself.
 
-Language packs decide the rest. A pack owns setup, default quality hooks, the debugger, the clicker, the inspector, and the end-to-end driver for one language. Flutter uses marionette to drive the app and flutter-agent-lens to inspect it. Appium is not offered unless a task asks for a non-Flutter surface, so the agent cannot grab the wrong tool. C# Aspire is controlled from the app, including restarts and resource rebuilds, not through a raw CLI the agent can misuse. End-to-end tests are JSON chains the agent writes and the harness executes. The agent does not improvise the clicks at runtime.
+A task can fan out. The harness starts sub-agents in two ways. An agent graph is an explicit handoff: the plan names the agents and the order, and each child reports back to the parent session. A glob fan-out is contextual: the files the task touches match other agents, and those agents run on their slice only, with their own tools and their own behavior. Neither child inherits the parent's tool list. The panel shows which agent ran, on which paths, and why.
 
-## Credentials
+## Languages, already chosen
 
-Bring your own, for now. The schema is committed (`credentials.schema.json`: name, glob, description, when to use). The values are not. `/init` asks you to fill them once. The harness stores them in the OS keychain and injects the matching names into the agent environment. The agent sees the description. The transcript is redacted before it is stored.
+A language pack owns setup, default quality hooks, the debugger, the clicker, the inspector, and the end-to-end driver for one language. The choices are already made. Flutter is driven with marionette and inspected with flutter-agent-lens. Appium is not offered unless a task asks for a non-Flutter surface. C# Aspire is restarted and rebuilt from the app, not through a raw CLI the agent can misuse. An unknown language is a pack someone wrote: tool entries, globs, and a setup script. `/init` will not guess.
 
-GitHub is the remote, not the vault. A `vault` profile in `deploy/docker-compose.yml` can start a local Hashicorp Vault in dev mode. It is off unless you select it, and it is a stand-in, not the product.
+End-to-end tests are JSON chains. The agent writes and repairs the chain. The harness executes it. One runner.
 
-## Relay
+## /init builds the machine
 
-The backend is a small .NET 11 service using SQLite and Entity Framework. A personal install is an organization of one. Adding a person adds a membership. Same tables.
+The repo carries the setup. Prerequisites, language packs, hooks, and the credential schema are committed. On a new box you clone and run `/init`. The harness reads that contract and installs what the packs declare, for Windows, macOS, and Linux, including the Windows mapping so bash hooks run without the agent knowing it is on Windows. You do not install SDKs by hand, and you do not copy a machine image. Nothing about the machine has to be shared in advance. If the contract is already in the repo, the agent can bring the box up itself.
 
-Transport is MinimalWebTransport, extracted from Project Fulcrum into its own repository and consumed as a NuGet package. Both sides dial the relay. This is not peer-to-peer hole punching. Self-host it wherever you want. A hosted tier, if it ever exists, runs the same binary and still cannot read session contents.
+Credentials are the exception that stays out of git. The schema is committed: name, glob, description, when to use. The values are not. The first machine fills them once. After that the harness injects the matching names into the agent environment from the OS keychain. A later machine gets the values from the store you already use, not from a Slack pin. The agent sees the description. The transcript is redacted before it is stored.
 
-## Repository layout
+Drift on a later `/init` is shown and confirmed, not silently rewritten.
+
+## GitHub, on this screen
+
+GitHub is built in. GitLab comes later, behind the same UI.
+
+The harness uses the credentials declared for the repo, on the git identity it wrote at `/init`, and talks to GitHub itself. Pull requests, review comments, checks, and Actions runs are rendered in the app, on the session that produced them. A review agent writes the review against the diff already on screen. The comment appears in the app and on the pull request, because that is where other people read it. You do not alt-tab to github.com, and the agent does not drive GitHub through a generic proxy the way an editor extension does. Source control, the checks, and the review thread are the same surface as the chat.
+
+The agent does not get a raw GitHub tool. It asks the harness. The harness is what holds the account.
+
+## Standards, extended where they break
+
+Rig uses the standards that already exist. Agents speak ACP. Tools speak MCP. Skills are skills. The gap is everything those standards leave to the client.
+
+The harness is that client, and it is opinionated. Scope is a glob, not whatever directory the process started in. Hooks are declared and run by the harness, with Windows path mapping and CR stripping, so a bash script from the repo runs on a Windows host. Credentials are injected, not dropped in a file the agent can cat. A tool not in the matched set is not callable. The panel shows the match. Where a standard is silent or wrong, Rig extends it in the repo contract instead of waiting for the next spec revision.
+
+## Layout
 
 | Path | What it is |
 | --- | --- |
-| `docs/` | Product contract, ADRs, and the grill plans that gate implementation. |
-| `.agents/` | The root contract above. |
-| `Api/` | Relay, EF model, tests. Aspire app host when that cut starts. |
+| `docs/` | Product contract, decisions, and the grill plans that gate implementation. |
+| `.agents/` | The root contract above, including `plans/`. |
+| `Api/` | Backplane, data model, tests. |
 | `Apps/rig/` | The Flutter shell. One app. |
 | `Apps/shared/` | Flutter libraries. |
-| `deploy/` | Compose file. Relay profile, and an opt-in vault profile. |
+| `deploy/` | Compose file. Backplane profile, and an opt-in local vault profile. |
 
-The shape follows Project Fulcrum, with one app instead of many, and without nested `.agents/` directories.
+Direct editing is for review. The shell is Flutter. The editor is Monaco with the language pack's language server. The diff sits next to the chat that produced it.
 
 ## Status
 

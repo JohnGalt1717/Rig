@@ -1,7 +1,20 @@
 # Repository structure
 
-Mapped from Project Fulcrum, cut to one app.
+One app, one backplane, one agent contract.
 
-`docs/` product contract. `.agents/` single root. `Api/` relay and libraries. `Apps/rig` the shell. `Apps/shared` Flutter libraries. `deploy/` compose, vault profile off by default.
+```
+.
+  docs/                 product contract, ADRs, grill plans
+  .agents/              single root contract, including plans/
+  Api/
+    AppHost/            Aspire host for local backplane
+    Services/Relay/     backplane
+    Libraries/Rig.Data/ EF model
+    Tests/
+  Apps/
+    rig/                the Flutter shell
+    shared/             Flutter libraries
+  deploy/               compose, vault profile off by default
+```
 
-No nested `.agents/` under Api or Apps.
+No nested `.agents/` under `Api/` or `Apps/`.

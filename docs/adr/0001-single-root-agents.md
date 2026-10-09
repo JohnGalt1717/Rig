@@ -2,4 +2,4 @@
 
 Status: accepted
 
-Rig loads one directory at the git root and selects with globs. The panel shows the match. Nested agent folders are not copied from Project Fulcrum.
+Nested agent folders lose to a harness that can compute scope. Rig loads one directory at the git root and selects with globs. The panel shows the match.
