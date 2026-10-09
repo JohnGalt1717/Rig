@@ -1,6 +1,6 @@
 # License
 
-This is a modified form of the PolyForm Strict License 1.0.0 (<https://polyformproject.org/licenses/strict/1.0.0>). The PolyForm name and the project URL are removed because the text is changed, as that license requires. It is not an OSI open source license. There is no right to fork.
+This is a modified form of the PolyForm Strict License 1.0.0 (<https://polyformproject.org/licenses/strict/1.0.0>). The PolyForm name and the project URL are removed because the text is changed, as that license requires. The noncommercial limit is removed. It is not an OSI open source license. There is no right to fork.
 
 Copyright. All rights reserved.
 
@@ -10,13 +10,13 @@ To receive any license under these terms, you agree to them as obligations and a
 
 ## What you may do
 
-You may read the software and run it for a noncommercial purpose. You may send a contribution back to this repository, and only to this repository, as a pull request. A contribution is licensed to the licensor on these same terms, and the licensor may relicense it.
+You may read the software and run it, including for a commercial purpose. You may send a contribution back to this repository, and only to this repository, as a pull request. A contribution is licensed to the licensor on these same terms, and the licensor may relicense it.
 
 ## What you may not do
 
 You may not distribute the software. A fork is distribution.
 
-You may not make changes or new works based on the software, except the contribution above. A wrapper, an embedding, and a commercial product built from it are new works. Running an AI over this repository and rewriting it is a new work. It is not a clean-room implementation.
+You may not make changes or new works based on the software and then ship them, whether you charge for them or give them away. A wrapper, an embedding, and a product built from a modified copy are new works. Running an AI over this repository and rewriting it is a new work. It is not a clean-room implementation.
 
 You may not sublicense or transfer any license.
 
