@@ -2,12 +2,10 @@
 
 No MCP the agent can call is the upstream server. Every server is registered with the harness and exposed as a proxy. The agent receives the proxied tool list for the matched glob. A server that is not in that list is not callable, even if it is installed on the machine.
 
-The proxy does three things the upstream server does not.
+A call is a request that returns a handle. The agent does not block the turn on it. Completion, a GitHub check, a review comment, and a still-running process past its sliding timeout are events pushed into the session. See [events.md](events.md).
 
-It requires a timeout on every call. A missing timeout is a rejection. On timeout or session end the runner kills the process group, so a child cannot outlive the call.
+The proxy flattens a known tool to the Rig contract for that kind. A debugger is the debug contract. A clicker is the clicker contract. Coverage, the test harness, the inspector, and git are the same idea. An MCP the pack does not care about is still proxied: timing is logged, a sliding timeout is computed from those timings, and shutdown still requires an answer. The agent never holds the upstream process.
 
-It flattens the call to the Rig contract for that kind of tool. A debugger is the debug contract, whether the upstream is mcp-debugger, netcoredbg, or the Flutter debug adapter. A clicker is the clicker contract, whether the upstream is marionette or flutter-skill. Coverage, the test harness, the inspector, and git go through the same kind of contract. The upstream shape stays behind the proxy. The agent, the flow, and the dashboard see one shape per kind of tool. A server that cannot fill the contract is a failed language pack, not a special case the agent is allowed to call raw.
+Every call carries a timeout, or inherits the sliding one the runner has measured. On timeout the runner asks the agent if the process is still valid. Continue requires a reason. No answer kills the process group. Session end asks the same question across every live group. Silence kills them.
 
-It records the call as structured events, not a log line. Tool name, contract, session, flow step, arguments after redaction, result, duration, process group, and the upstream error. The dashboard is that stream, live. You see which tool the agent called, which contract it was flattened to, what came back, and where the upstream disagreed with the contract. That disagreement is how a bad MCP shows itself. The agent can propose a skill or a flow change from a failed step. The change is a diff. It is not a quiet retry.
-
-The panel shows what is running. A flow run is the same events grouped by step. One click lays the trace on the flow.
+The dashboard is that stream, live. Tool, contract, session, handle, redacted arguments, result, duration, and the shutdown answer. A contract violation is the upstream result that did not fit, shown next to the call.
