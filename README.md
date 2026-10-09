@@ -1,6 +1,6 @@
 # Rig
 
-Read [LICENSE.md](LICENSE.md) before you use, copy, or contribute to this repository. The grant is narrow. Read it carefully.
+Read [LICENSE.md](LICENSE.md) before you use this repository. It is a modified PolyForm Strict grant: noncommercial use, contributions back here, no forks, no wrappers, no new works. It is not an open source license. Read it carefully.
 
 Rig is a harness for coding agents. Chat is the primary surface. The agent does the work. You see the files, the diff, the diagnostics, and exactly what the harness loaded and why.
 
@@ -83,7 +83,7 @@ The harness is that client, and it is opinionated. Scope is a glob, not whatever
 
 | Path | What it is |
 | --- | --- |
-| `LICENSE.md` | The grant. Read it before you copy or contribute. |
+| `LICENSE.md` | Modified PolyForm Strict. Read it before you use this. |
 | `.prerequisites.json` | Machine contract. What `/init` installs, per glob, into the Linux host. |
 | `docs/` | Product contract, decisions, and the grill plans that gate implementation. |
 | `.agents/` | The root contract above, including `plans/`. |
