@@ -45,13 +45,19 @@ A language pack owns setup, default quality hooks, the debugger, the clicker, th
 
 End-to-end tests are JSON chains. The agent writes and repairs the chain. The harness executes it. One runner.
 
-## /init builds the machine
+## The setup file
 
-The repo carries the setup. Prerequisites, language packs, hooks, and the credential schema are committed. On a new box you clone and run `/init`. The harness reads that contract and installs what the packs declare, for Windows, macOS, and Linux, including the Windows mapping so bash hooks run without the agent knowing it is on Windows. You do not install SDKs by hand, and you do not copy a machine image. Nothing about the machine has to be shared in advance. If the contract is already in the repo, the agent can bring the box up itself.
+`.prerequisites.json` at the repo root is the machine contract. It is committed. It lists every tool the repo needs, with a glob for where it applies and an install per platform: Windows, macOS, Linux. A language pack contributes its own entries. A repo can add more. The harness owns the mapping, including WSL on Windows, so a bash install step is the same step everywhere.
 
-Credentials are the exception that stays out of git. The schema is committed: name, glob, description, when to use. The values are not. The first machine fills them once. After that the harness injects the matching names into the agent environment from the OS keychain. A later machine gets the values from the store you already use, not from a Slack pin. The agent sees the description. The transcript is redacted before it is stored.
+Nothing in that file is a secret, and nothing in it is specific to one person's laptop. Clone the repo onto a blank machine and the file is already there. `/init` reads it, installs what is missing, and records what it installed. The next run diffs the file against the machine and only touches what drifted. You confirm the drift. It does not rewrite a working box in silence.
 
-Drift on a later `/init` is shown and confirmed, not silently rewritten.
+That is how an agent brings a dev box up. The contract is in the repo. The user does not install SDKs, copy a dotfile, or share a machine image. If `.prerequisites.json` and the language packs are already in the tree, `/init` is the whole setup.
+
+## Credentials
+
+Credentials stay out of git. `credentials.schema.json` is committed: name, glob, description, when to use. The values are not. The first machine fills them once. After that the harness injects the matching names into the agent environment from the OS keychain. A later machine gets the values from the store you already use, not from a Slack pin. The agent sees the description. The transcript is redacted before it is stored.
+
+GitHub is the remote, not the vault. A `vault` profile in `deploy/docker-compose.yml` can start a local Hashicorp Vault in dev mode. It is off unless you select it, and it is a stand-in, not the product.
 
 ## GitHub, on this screen
 
@@ -71,6 +77,8 @@ The harness is that client, and it is opinionated. Scope is a glob, not whatever
 
 | Path | What it is |
 | --- | --- |
+| `.prerequisites.json` | Machine contract. What `/init` installs, per platform, per glob. |
+| `credentials.schema.json` | Credential names and where they apply. Values are not committed. |
 | `docs/` | Product contract, decisions, and the grill plans that gate implementation. |
 | `.agents/` | The root contract above, including `plans/`. |
 | `Api/` | Backplane, data model, tests. |
