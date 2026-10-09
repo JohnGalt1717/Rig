@@ -1,0 +1,27 @@
+services:
+  relay:
+    image: rig-relay:local
+    build:
+      context: ../Api
+      dockerfile: Services/Relay/Dockerfile
+    ports:
+      - "4433:4433"
+    volumes:
+      - relay-data:/data
+    environment:
+      Rig__Data__Path: /data/rig.db
+    profiles: ["relay"]
+
+  vault:
+    image: hashicorp/vault:1.19
+    command: server -dev -dev-listen-address=0.0.0.0:8200
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: rig-dev-only
+    profiles: ["vault"]
+
+volumes:
+  relay-data:
