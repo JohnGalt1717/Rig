@@ -1,6 +1,10 @@
 # Issues
 
-An issue is a resource, like a container. GitHub Issues is the first tracker. Linear and Jira are the same contract later. The agent does not get the tracker's API.
+An issue is a resource, like a container. GitHub Issues is the first tracker. Linear and Jira are the same contract later.
+
+The agent reaches the tracker only through the contract. `gh`, `git` against the issue remote, the tracker's CLI, `curl`, `wget`, and the request proxy are refused when the target is the tracker. The refusal names the contract. There is no second path.
+
+Auth is per repo. GitHub uses the account the credential helper already holds for that remote. Another tracker gets a login prompt on first use, stored against this repo only, and injected into the call. The agent does not see the token, and a login for one repo is not offered to another.
 
 A fix does not start on the code. It starts on a plan. The plan opens with the root cause, then the execution steps. Where the cause or the approach is not settled, the grill runs and the open questions have to be empty before execution. The plan is the file in `.agents/plans/` for that issue.
 
