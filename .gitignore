@@ -1,0 +1,17 @@
+*.user
+*.suo
+.vs/
+bin/
+obj/
+.dart_tool/
+build/
+.credentials
+.credentials.json
+.env
+.env.*
+!.env.example
+deploy/vault/data/
+*.db
+*.db-shm
+*.db-wal
+.DS_Store
