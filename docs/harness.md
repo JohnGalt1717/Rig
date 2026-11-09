@@ -10,20 +10,26 @@ Rig drives the harnesses installed on the machine. It does not replace their loo
 | Codex | `codex app-server`. Program to program. |
 | Claude Code | Claude Agent SDK. The installed login. |
 
-An adapter emits the same events: turn, tool call, result, done, error. A new harness is a new adapter. The rest of Rig does not change.
+An adapter emits the same events. A new harness is a new adapter.
 
-The harness keeps its plan, its subagents, and its skills. Rig does not strip them. Rig adds a root MCP that is the only MCP the harness sees for the scoped area. That MCP is Rig's contracts: the editor, the debugger, the test runner, the container, the secret proxy, the structure index. The harness's own tools that would escape the scope are not offered.
+## The area MCP
 
-## Scoping
+Each agent area gets one MCP. That MCP is the only MCP the harness sees for that area. It replaces the defaults.
 
-One `.agents/` at the repo root. Agents declare globs. A file matches an agent. That agent gets the tools and the skills named for it, and the behavior and knowledge for that path. A child agent does not inherit the parent's tool list.
+The MCP exposes Rig's contracts for the area: edit, debug, test, coverage, drive, container, secrets, structure. Skills in `.agents/skills/` are how the agent is told to call them. A skill names the contract. The agent does not get a raw tool list.
 
-An agent graph is explicit: the plan names the agents and the order. A glob fan-out is implicit: the files the task touches match other agents, and those run on their slice. The panel shows which agent, on which paths, and why.
+Additional MCPs the repo wants are proxied through this one. They are declared in the area, scoped by the same globs, and flattened to the area contract where a contract exists. An MCP that is not declared is not loaded. The hierarchy is the area, then the match, then the tool. The panel shows it.
 
-## Least cost
+## Language tooling
 
-When the repo does not name a harness, Rig picks. A mechanical edit goes to the cheap model. A design or a hard bug goes to the strong one. A review goes to a different harness than the one that wrote the code. The choice is recorded on the turn. The user can pin a harness per agent or per repo.
+A language pack still configures the area. For C# and for Flutter, the first two, the pack sets up the debugger, the UI driver, code coverage, the test harness, and the problems push. `/init` installs them. The area MCP exposes them. The harness does not install them and does not call them directly.
 
-## What the harness does not get
+Next.js and Vite are later packs. Same MCP, same contracts, new pack.
 
-A raw shell. A raw container CLI. A raw cloud CLI. Credentials. A tool outside its glob. Those are refused, and the refusal names the contract.
+## Scoping and cost
+
+One `.agents/` at the repo root. Agents declare globs. A child does not inherit the parent's tools. Least-cost routing picks the harness when the repo does not name one. A review uses a different harness than the author.
+
+## Command line
+
+No raw shell. The proxy runs the command, in WSL on Windows. See [isolation.md](isolation.md).
