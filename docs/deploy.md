@@ -2,7 +2,9 @@
 
 The setup of Rig in a repo is code. It is committed. `/init` reads it. A later change is a diff.
 
-That same config generates the pipeline. A check-in that changes a resource, a setting, or a migration emits the deploy step: spin the resource, apply the migration, run the tests, tear down what the diff removed. The pipeline is generated. It is not a file someone maintains beside the config.
+That same config generates the pipeline. A check-in that changes a resource, a setting, a route, or a migration emits the deploy step: spin the resource, apply the migration, place the proxy, run the tests, tear down what the diff removed. The pipeline is generated. It is not a file someone maintains beside the config.
+
+The reverse proxy is the standalone Rust binary. The pipeline places it into Kubernetes, ECS, or the Azure container service with the routes from the repo config. See [proxy.md](proxy.md).
 
 The first targets are the three large clouds. A plugin maps a resource to the managed service. The config does not grow a second copy per cloud.
 

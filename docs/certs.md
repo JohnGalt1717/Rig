@@ -1,5 +1,9 @@
-# Dev certificates
+# Certificates
 
-`/init` issues the local development certificate and trusts it on the machine the host is running on. On Windows that machine is the distro, and the trust is also installed into the Windows store so the browser on the desktop accepts it. A new device that attaches does not inherit the cert. `/init` on that device issues and trusts one for the host it runs.
+Every session environment gets a certificate the apps and the backends trust. `/init` creates a local CA on the machine if one does not exist, and trusts it.
 
-Add, rotate, and remove are harness commands. The agent does not run `dotnet dev-certs` or `mkcert` itself. A service the session starts uses the cert the harness already trusted. An untrusted cert at launch is an init failure, shown before the agent begins.
+On macOS the CA goes into the system keychain. On Windows it goes into the distro trust store and the Windows store, so the browser on the desktop accepts it. On Linux it goes into the system store. A container in a session trusts the CA because Rig mounts the trust bundle into it. The app and the backend inside that container accept the cert without a warning and without a per-app exception.
+
+A new machine runs `/init` and gets its own CA. A session on that machine issues certs from it. Certs are not copied between machines. Add, rotate, and remove are harness commands. The agent does not run `mkcert` or a language-specific cert tool.
+
+An untrusted cert at launch is an init failure, shown before the agent begins.
