@@ -1,21 +1,25 @@
 # Harness on the harnesses, and isolation
 
-Grill this before any code. It replaces the earlier provider-and-host plan.
+Grill this before any code.
 
 ## Decision
 
-Rig drives the installed harnesses. Grok Build over ACP, Codex over its app-server, Claude Code over the Agent SDK. Those keep their loops. Rig owns the environment: the root MCP, the scope, the container per worktree, the resources, the network.
+Rig drives the installed harnesses. Grok Build over ACP, Codex over its app-server, Claude Code over the Agent SDK. Those keep their loops. Rig owns the environment.
 
-Least-cost routing picks the harness when the repo does not. A review uses a different harness than the author.
+Each agent area gets one MCP. It replaces the defaults, exposes Rig's contracts through skills, and proxies additional MCPs the area declared. Language packs configure debugger, UI driver, coverage, and test harness. `/init` installs them. First proof is C# and Flutter.
 
 ## Isolation
 
-One container per worktree or branch. Apple containers on macOS, WSL containers on Windows, native on Linux. No Docker, no Podman. Network-isolated. Rig injects env, pathing, and connection strings. Resources (database, Valkey, bus) start inside the container. Test groups get sub-resources, not new containers.
+No nested VM. macOS does not have it. Isolation is a network bridge per session, the way Compose isolates containers. Apple containers on macOS, WSL containers on Windows, native on Linux. No Docker, no Podman. Commands through the proxy, in WSL on Windows.
 
-Emulators and USB devices are resources, proxied across machines. Localhost and `.local` resolve inside the container to the host mapping. No dev tunnel.
+Resources start on the bridge. Test groups get sub-resources. Emulators and USB devices are names on the bridge, proxied across machines.
+
+## Deploy
+
+The setup is code. It generates the pipeline for the three large clouds. Language libraries that call the deploy API are later.
 
 ## Open questions
 
-1. Does the container start on session open, or on first resource request?
-2. Is the root MCP one server with scoped tools, or one server per agent match?
+1. One MCP server per area, or one server with the area as a scope parameter?
+2. Does the bridge and its containers start on session open, or on first resource request?
 3. Cross-machine in the first cut, or one machine with the interface ready?
