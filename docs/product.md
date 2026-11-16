@@ -1,14 +1,18 @@
 # Product
 
-Rig drives the coding harnesses already installed and logged in: Grok Build, Codex, Claude Code. Those keep their loops. Rig owns the environment they run in.
+Rig drives the coding harnesses already installed and logged in: Grok Build, Codex, Claude Code. Those keep their loops. Rig owns the environment they run in, and the order they run in.
 
 The user clones a repository, runs `/init`, and the session is scoped, tooled, isolated, and able to edit, test, and review. Direct editing is secondary. The agent does the work. The user sees the diff, the diagnostics, and why the harness loaded what it loaded.
 
 The first proof is C# and Flutter. Next.js and Vite are later packs.
 
+## Orchestrator
+
+The orchestrator is the ring leader. It assigns work across machines, holds sessions that would conflict, and owns merges. See [orchestrator.md](orchestrator.md). Long-running work is rebased onto main as a harness operation. The branch is not reset. The session continues.
+
 ## Sessions
 
-A session starts in a directory and is scoped by that directory plus the work. The harness resolves the git root, loads the single `.agents/` there, and applies globs. Several sessions run at once. Each gets its own network bridge and its own containers. See [isolation.md](isolation.md).
+A session starts in a directory and is scoped by that directory plus the work. The harness resolves the git root, loads the single `.agents/` there, and applies globs. Several sessions run at once. Each gets its own network bridge, its own containers, and its own worktree. The agent, the build, and the source run inside the environment. See [isolation.md](isolation.md).
 
 ## How the agents are driven
 
