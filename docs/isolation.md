@@ -1,43 +1,39 @@
 # Isolation
 
-Every worktree and every branch is an environment. Two sessions do not share a port, a database, a cache, a process, or an environment variable.
+Every worktree and every branch is an environment. Two sessions do not share a port, a database, a cache, a process, an environment variable, or a checkout.
+
+## What runs inside
+
+The environment holds the source, the build, the resources, and the agent process. Cloning the repo and running `/init` brings the whole thing up. There is no separate machine setup.
+
+The agent runs in the container. The language server runs in the container. The build runs in the container, the way a dev container builds inside the environment instead of on the host. The Aspire-style host Rig provides runs against those containers, with one debugger attached across them.
+
+Simulators stay on the host where the platform requires it: iOS, Android, and the desktop shells. They are reached by name on the session bridge. Everything else is in the environment.
 
 ## No nested VM
 
-The environment is not a lightweight VM with containers inside it. Nested virtualization is not available on macOS. Isolation is a network bridge per session, the way Compose isolates a set of containers.
+The environment is not a VM wrapping containers. Nested virtualization is not the plan. Isolation is a network bridge per session.
 
 | Host | Runtime |
 | --- | --- |
-| macOS | Apple containers. |
+| macOS | Apple containers. Rig builds the network isolation. GPU passthrough from 27.3 is used when the runtime exposes it. |
 | Windows | WSL containers. The app is the Linux build through WSLg. |
 | Linux | The native runtime. |
 
 Not Docker. Not Podman.
 
-## Environment
+## Environment variables
 
-The repo config names the variables the code expects: where to find certs, where the data root is, which endpoint to call. Rig sets them inside the session. A second worktree gets a different root and a different value. The host environment is not inherited. A variable that would have collided is not visible across sessions.
+The repo config names the variables the code expects: data roots, cert locations, endpoints. Rig sets them inside the session. A second worktree gets different values. The host environment is not inherited.
 
-Connection strings, ports, and paths are injected the same way. The code reads the variable. It does not read a file the agent wrote.
+## Network and resources
 
-## Network
+Rig creates a bridge, assigns non-colliding ports, and registers DNS. Containers join the bridge. Localhost inside a container is the container. `.local` names resolve to the host mapping.
 
-Rig creates a bridge for the session, assigns ports that do not collide, and registers DNS. Containers join that bridge. Localhost inside a container is the container. `.local` names resolve to the host mapping Rig registered.
+Resources (database, Valkey, bus, collector, reverse proxy) start on the bridge. Test groups get sub-resources. A USB device or an emulator is a name on the bridge, reachable from any machine running Rig. No dev tunnel.
 
-A USB device or an emulator on one machine is a name on that bridge, reachable from a container on another machine through the network Rig built. No dev tunnel.
-
-## Resources
-
-The repo config names the resources: a database, Valkey, a bus, a collector, a reverse proxy. Rig starts them on the session bridge, injects the connection strings, and tears them down with the session.
-
-A test group asks for a database. Rig cuts a sub-database on the server already running and drops it when the group ends.
-
-The agent asks for a rebuild, a reload, or a selective update. Rig does it. The agent does not run a container command.
+The agent asks for a rebuild or a reload. Rig does it. The agent does not run a container command.
 
 ## Command line
 
-There is no raw shell. Commands go through Rig's proxy. On Windows the proxy runs them in the WSL distro.
-
-## Across machines
-
-A session's containers can be on a different machine from the window. The backplane forwards the intent. The first version works with one machine. Adding a second does not change the interface.
+No raw shell. Commands go through the proxy. On Windows the proxy runs them in WSL.
