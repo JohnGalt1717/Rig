@@ -12,7 +12,9 @@ The agent runs in the container. The language server runs in the container. The 
 
 The repo config names the variables, the ports, and the URLs the code and the tests expect. Rig assigns unique ports for the session, starts the proxy with the forwarding rules for those ports, and injects the resulting values.
 
-The injection is not only for processes inside the container. A simulator or an app launch on the host gets the same environment. Flutter, a browser, or another pack's runner is started with the session's base URL, the proxy address, and the ports. The app talks to the worktree's services, not to whatever is on the default ports. An e2e run is pointed at those ports automatically. A second worktree gets different ports and a different proxy. The two do not collide.
+The injection is not Flutter-specific. Any pack that launches a process receives the session environment: React Native, UWP, Uno, Angular, Next.js, a browser, or a later pack. The runner is started with the session's base URL, the proxy address, and the ports. The app talks to the worktree's services, not to the defaults. An e2e run is pointed at those ports automatically. A second worktree gets different ports and a different proxy. The two do not collide.
+
+How the pack consumes the values is the pack's job. A Flutter app reads them from the environment or from a generated config the pack writes at launch. A Next.js or Angular app reads them from the environment the pack sets on the process. A React Native or Uno app gets them the same way, or through the launch arguments the pack controls. The session does not care which. The ports are unique either way.
 
 Simulators stay on the host where the platform requires it: iOS, Android, and the desktop shells. They are reached by name on the session bridge, and they receive the session environment at launch. Everything else is in the environment.
 
