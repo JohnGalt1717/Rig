@@ -12,6 +12,7 @@ One `.agents/` at the git root. Nested `.agents/` directories are ignored. A pac
   hooks/        declarations the runner executes
   skills/       SKILL.md folders, loaded when the matched agent names them
   plans/        settled plans, written by grill, read by execution
+  tests/        .law files, same relative path as the code they govern
 ```
 
 ## Agent file
@@ -21,6 +22,10 @@ An agent declares an id, a description, a globs array, a priority, and the harne
 ## Behavior and knowledge
 
 A behavior file with no globs applies to its mirror path. A globs array extends it to cross-cutting sets, such as every test project. Knowledge uses the same mirror. A move of code rewrites the mirrored paths in the same change. The panel lists both.
+
+## Laws
+
+Laws live under `tests/` as `.law` Markdown files that mirror the code path. See [laws.md](laws.md). A move of code rewrites the mirrored paths in the same change.
 
 ## Hooks
 
