@@ -20,6 +20,10 @@ See [harness.md](harness.md). Each agent area gets one MCP. That MCP replaces th
 
 Least-cost routing picks the harness when the repo does not name one.
 
+## Laws
+
+Precise properties live as `.law` Markdown files under `.agents/tests/`, mirroring the code they govern. An interviewer agent settles them with the human. A reviewer agent checks that tests enforce them. See [laws.md](laws.md).
+
 ## Command line
 
 No raw shell. Commands go through the proxy. On Windows the proxy runs them in WSL.
